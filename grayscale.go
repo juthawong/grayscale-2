@@ -7,11 +7,12 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/disintegration/imaging"
 )
 
-var output = flag.String("type", "png", "Output image format")
+var output = flag.String("type", "", "Output image format ('' == use source format)")
 var destination = flag.String("destination", "", "Output image folder")
 
 func main() {
@@ -46,7 +47,11 @@ func main() {
 				continue
 			}
 			dest := imaging.Grayscale(src)
-			destFilename := extMatch.ReplaceAllString(srcFilename, "") + fmt.Sprintf("-grayscale.%s", *output)
+			extension := *output
+			if extension == "" {
+				extension = strings.TrimLeft(filepath.Ext(srcFilename), ".")
+			}
+			destFilename := extMatch.ReplaceAllString(srcFilename, "") + fmt.Sprintf("-grayscale.%s", extension)
 			if len(*destination) > 0 {
 				_, file := filepath.Split(destFilename)
 				destFilename = filepath.Join(*destination, file)
